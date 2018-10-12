@@ -79,7 +79,7 @@ module.exports={
         })
     ],
     devServer:{
-        contentBase: "./dist", //网站的根目录为 根目录/dist
+        contentBase: "./src", //网站的根目录为 根目录/src
         port: 9000, //端口改为9000
         host: 'localhost', //如果指定的host，这样同局域网的电脑或手机可以访问该网站,host的值在dos下使用ipconfig获取
         open:true, // 自动打开浏览器
