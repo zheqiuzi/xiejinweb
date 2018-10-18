@@ -7,7 +7,9 @@ const { VueLoaderPlugin } = require('vue-loader')
 module.exports={
     devtool: "source-map",
     entry: {
-        index:"./src/static/js/index/index.js"
+        index:"./src/static/js/index/index.js",
+        waimai:"./src/static/js/waimai/waimai.js",
+        test:"./src/static/js/index/test.js"
     },
     output: {
         path: __dirname+"/dist/",
@@ -76,7 +78,20 @@ module.exports={
             filename:"html/index/index.html",
             inject:"body",
             chunks:["index"]
+        }),
+        new HtmlWebpackPlugin({
+            template:"./src/html/waimai/waimai.html",
+            filename:"html/waimai/waimai.html",
+            inject:"body",
+            chunks:["waimai"]
+        }),
+        new HtmlWebpackPlugin({
+            template:"./src/html/test/test.html",
+            filename:"html/test/test.html",
+            inject:"body",
+            chunks:["test"]
         })
+
     ],
     devServer:{
         contentBase: "./src", //网站的根目录为 根目录/src
