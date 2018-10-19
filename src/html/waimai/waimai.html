@@ -5,120 +5,50 @@
     <title>Title</title>
 </head>
 <body>
-<div class="" id="app">
+<div id="app">
     原价：
     <input  v-model="oldPrice">{{oldPrice}}
+
     实付：
-    <input id="xj">
+    <input v-model="currentPrice">
+
     包装费：
-    <input id="bzf">
+    <input v-model="packingFee">
+
+    配送费：
+    <input v-model="expressFee">
 
     订餐人数：
     <select id="dcrs">
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-        <option>11</option>
-        <option>12</option>
-        <option>13</option>
-        <option>14</option>
-        <option>15</option>
-        <option>16</option>
-        <option>17</option>
-        <option>18</option>
-        <option>19</option>
-        <option>20</option>
-        <option>21</option>
-        <option>22</option>
+        <option v-for="i in maxPeopleCount">{{i}}</option>
     </select>
 
-    <div>
-        第一位订餐人：
+
+    <div v-for="(orderItem,index) in orders">
+        第{{index+1}}位订餐人：
 
         <div>
-            <div>
+            <div v-for="priceItem in orderItem.unitPrice">
                 单件商品价格：
-                <input id="djlb">
+                <input v-model="priceItem.oldPrice">{{priceItem.currentPrice}}
+            </div>
+            <div>
+{{orderItem | getInfo}}
             </div>
         </div>
+
+        <button v-on:click="addPrice(index)">添加商品价格</button>
 
     </div>
 
 
-    <button>+</button>
+        <button v-on="" v-on:click="addPeople()">添加订餐人</button>
 
 
-    <button id="js">计算</button>
+    <button id="js" v-on:click="compute">计算</button>
 
 </div>
 
-
-<script>
-
-
-
-    var 原价=67.4,实价=24.4,配送费=0,包装费=5.5,单价数组=[21,35.9],折扣比例,订餐人数=2;
-
-    var 得到订餐列表原价总价=function () {
-        var 订单列表总价=0;
-        单价数组.forEach(function (item,index,arr) {
-            订单列表总价+=item;
-        })
-        return 订单列表总价;
-    }
-
-    var 得到订单应支付的菜单实价总价=function () {
-        return 实价-配送费-包装费;
-    }
-
-    var 得到订单折扣比例=function () {
-        var 折扣比例=得到订单应支付的菜单实价总价()/得到订餐列表原价总价();
-        return 折扣比例;
-    }
-
-    var 单价应付款=function(单价){
-        var 应付款=得到订单折扣比例()*单价;
-        return 应付款;
-    }
-
-    var 获取单个商品的包装费=function(){
-        return 包装费/单价数组.length;
-    }
-
-    折扣比例=得到订单折扣比例();
-
-    var 计算某人订餐价格=function(单价列表){
-        var 应付总价=0;
-        var 订单原价=0;
-        var 包装费=获取单个商品的包装费()*单价列表.length;
-        var 个人承担配送费=配送费/订餐人数;
-
-        单价列表.forEach(function (item,index,array) {
-            订单原价+=item;
-            应付总价+=单价应付款(item);
-        })
-        应付总价=应付总价+包装费+个人承担配送费;
-        console.log("订单原价："+订单原价.toFixed(2)+" 订单应付总价："+应付总价.toFixed(2)+" 订单数量："+单价列表.length+" 其中包装费："+包装费.toFixed(2)+" 个人承担配送费："+个人承担配送费.toFixed(2))
-    }
-
-
-
-    console.log("总订单原价："+原价+ " 实价："+实价+" 配送费："+配送费+" 包装费："+包装费+"订单人数："+订餐人数+"折扣比例："+折扣比例.toFixed(2));
-
-    计算某人订餐价格([21]);
-
-    计算某人订餐价格([35.9]);
-
-    // 计算某人订餐价格([20,19]);
-
-
-</script>
 
 </body>
 </html>
