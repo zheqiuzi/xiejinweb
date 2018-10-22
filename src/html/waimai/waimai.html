@@ -28,16 +28,20 @@
         第{{index+1}}位订餐人：
 
         <div>
-            <div v-for="priceItem in orderItem.unitPrice">
+            <div v-for="(priceItem,priceIndex) in orderItem.unitPrice">
                 单件商品价格：
                 <input v-model="priceItem.oldPrice">{{priceItem.currentPrice}}
+                <button v-on:click="deletePrice(priceIndex,orderItem.unitPrice)">-</button>
             </div>
+
             <div>
 {{orderItem | getInfo}}
+
             </div>
         </div>
 
         <button v-on:click="addPrice(index)">添加商品价格</button>
+        <button v-on:click="deletePeople(index,orders)">-</button>
 
     </div>
 
@@ -46,7 +50,7 @@
 
 
     <button id="js" v-on:click="compute">计算</button>
-
+<button v-on:click="initData">reset</button>
 </div>
 
 

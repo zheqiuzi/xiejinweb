@@ -27,8 +27,9 @@ var app=new Vue({
                         // packingFee:null
                     }
                 ],
+                oldCountPrice:0,
                 expressFee:null,
-                countPrice:null
+                currentCountPrice:null
             },
             {
                 unitPrice:[
@@ -39,7 +40,7 @@ var app=new Vue({
                     }
                 ],
                 expressFee:null,
-                countPrice:null
+                currentCountPrice:null
             }
         ]
 
@@ -54,6 +55,14 @@ var app=new Vue({
             this.orders[index].unitPrice.push(price);
             console.log("addPrice")
         },
+        deletePrice:function(index,arr){
+            if(arr.length<=1){
+                alert("每个人至少需要一分订餐，如果没有订餐可以删除订餐人");
+                return
+            }
+            arr.splice(index,1);
+            console.log(index)
+        },
         addPeople:function () {
             var people={
                 unitPrice:[
@@ -64,12 +73,18 @@ var app=new Vue({
             }
             this.orders.push(people);
 
-            console.log("addPeople")
         },
-        toInt:function(num,numName){
+        deletePeople:function(index,arr){
+            if(arr.length<=1){
+                alert("至少需要一名订餐人");
+                return
+            }
+            arr.splice(index,1);
+        },
+        toFloat:function(num,numName){
             var _num;
             try {
-                _num=parseInt(num);
+                _num=parseFloat(num);
             }catch (e) {
                 alert(numName+"必须为整数")
                 return
@@ -77,74 +92,119 @@ var app=new Vue({
             return _num;
 
         },
+        initData:function(){
+
+            var defualtData={
+                //最多可选人数
+                maxPeopleCount:null,
+                //人数
+                peopleCount:null,
+                //原价
+                oldPrice:null,
+                //实价
+                currentPrice:null,
+                //配送费
+                expressFee:null,
+                //包装费
+                packingFee:null,
+                //折扣比例
+                percent:null,
+                orders:[
+                    {
+                        unitPrice:[
+                            {
+                                oldPrice:null,
+                                currentPrice:null,
+                                // packingFee:null
+                            }
+                        ],
+                        oldCountPrice:null,
+                        expressFee:null,
+                        currentCountPrice:null
+                    }
+                ]
+            }
+            Object.assign(this.$data, defualtData);
+            console.log(this.$data)
+            // Object.assign()
+        },
         compute:function () {
 
-            var 原价=this.toInt(this.oldPrice,"原价"),实价=this.toInt(this.currentPrice,"实价"),配送费=this.toInt(this.expressFee,"配送费"),包装费=this.toInt(this.packingFee,"包装费"),单价数组=[],折扣比例,订餐人数=this.orders.length;
+            this.percent=this.toFloat(this.oldPrice,"原价")
+            this.currentPrice=this.toFloat(this.currentPrice,"实价")
+            this.expressFee=this.toFloat(this.expressFee,"配送费")
+            this.packingFee=this.toFloat(this.packingFee,"包装费");
+            var unitPriceArr=[],折扣比例,订餐人数=this.orders.length;
             var _this=this;
             this.orders.map(function (val,index,arr) {
                 val.unitPrice.map(function (_val,_index,_arr) {
-                    var price=_this.toInt(_val.oldPrice,"单价")
-                    单价数组.push(price);
+                    var price=_this.toFloat(_val.oldPrice,"单价")
+                    unitPriceArr.push(price);
                 })
             })
 
-            var 得到订餐列表原价总价=function () {
+            //得到原价列表总价
+            var getOldPriceListCount=function () {
                 var 订单列表总价=0;
-                单价数组.forEach(function (item,index,arr) {
+                unitPriceArr.forEach(function (item,index,arr) {
                     订单列表总价+=item;
                 })
                 return 订单列表总价;
             }
 
-            var 得到订单应支付的菜单实价总价=function () {
-                return 实价-配送费-包装费;
+            //得到订单应支付的菜单实价总价
+            var getMenuCurrentCount=function () {
+                return _this.currentPrice-_this.expressFee-_this.packingFee;
             }
 
-            var 得到订单折扣比例=function () {
-                var 折扣比例=得到订单应支付的菜单实价总价()/得到订餐列表原价总价();
+            //获取折扣比例
+            var getPercent=function () {
+                var 折扣比例=getMenuCurrentCount()/getOldPriceListCount();
                 return 折扣比例;
             }
 
-            var 单价应付款=function(单价){
-                var 应付款=得到订单折扣比例()*单价;
+            //获取单价应付款
+            var getUnitCurrentPrice=function(unitPrice){
+                var 应付款=getPercent()*unitPrice;
                 return 应付款;
             }
 
-            var 获取单个商品的包装费=function(){
-                return 包装费/单价数组.length;
-            }
-
-            折扣比例=得到订单折扣比例();
-
-            // var 计算某人订餐价格=function(单价列表){
-            //     var 应付总价=0;
-            //     var 订单原价=0;
-            //     var 包装费=获取单个商品的包装费()*单价列表.length;
-            //     var 个人承担配送费=配送费/订餐人数;
-            //     单价列表.forEach(function (item,index,array) {
-            //         订单原价+=item;
-            //         应付总价+=单价应付款(item);
-            //     })
-            //     应付总价=应付总价+包装费+个人承担配送费;
-            //     console.log("订单原价："+订单原价.toFixed(2)+" 订单应付总价："+应付总价.toFixed(2)+" 订单数量："+单价列表.length+" 其中包装费："+包装费.toFixed(2)+" 个人承担配送费："+个人承担配送费.toFixed(2))
+            // //获取单个商品的包装费价格
+            // var getSingleProdExpressFee=function(){
+            //     return 包装费/unitPriceArr.length;
             // }
+
+            折扣比例=getPercent();
 
 
             var computeUnitPrice=function(oldPrice){
-                return 单价应付款(oldPrice);
+                return getUnitCurrentPrice(oldPrice);
 
             }
 
 
 
-
-            console.log("总订单原价："+原价+ " 实价："+实价+" 配送费："+配送费+" 包装费："+包装费+"订单人数："+订餐人数+"折扣比例："+折扣比例.toFixed(2));
+            console.log("总订单原价："+_this.percent+ " 实价："+this.currentPrice+" 配送费："+_this.expressFee+" 包装费："+this.packingFee+"订单人数："+订餐人数+"折扣比例："+折扣比例.toFixed(2));
 
            //计算订餐价格
-            this.orders.map(function (order,index,arr) {
+            this.orders.map(function (order,index,_orders) {
                 order.unitPrice.map(function (unitPrice,_index,_arr) {
-                    unitPrice.currentPrice=computeUnitPrice(unitPrice.oldPrice);
+                    var currentPrice=computeUnitPrice(unitPrice.oldPrice);
+                    unitPrice.currentPrice=currentPrice;
+                    order.oldCountPrice=order.oldCountPrice+unitPrice.oldPrice;
+                    order.currentCountPrice=order.currentCountPrice+currentPrice;
                 })
+                //根据订单人数计算配送费
+                order.expressFee=_this.expressFee/_this.orders.length;
+                //根据订单件数计算打包盒费用
+                order.packingFee=_this.packingFee/unitPriceArr.length;
+                //计算某人订单总价
+                order.currentCountPrice= order.currentCountPrice+order.expressFee+order.packingFee;
+
+                order.currentCountPrice=order.currentCountPrice.toFixed(2)
+                order.packingFee=order.packingFee.toFixed(2)
+                order.expressFee=order.expressFee.toFixed(2)
+
             })
 
 
@@ -152,8 +212,8 @@ var app=new Vue({
     },
     filters:{
         getInfo:function (order) {
-            var info="订单原价："+" 订单应付总价："+" 订单数量："+order.unitPrice.length+" 其中包装费："+" 个人承担配送费：";
-            return "aaaa"
+            var info="订单应付总价："+order.currentCountPrice+" 订单数量："+order.unitPrice.length+" 其中包装费："+order.packingFee+" 个人承担配送费："+order.expressFee;
+            return info
         }
     }
 });
